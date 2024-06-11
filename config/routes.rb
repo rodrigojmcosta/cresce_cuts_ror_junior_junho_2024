@@ -1,5 +1,12 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  resources :stores#, defaults: { format: :json }
+  resources :customers#, defaults: { format: :json }
+  resources :orders#, defaults: { format: :json }
+  resources :items#, defaults: { format: :json }
+  resources :carts#, defaults: { format: :json }
+  resources :order_items#, defaults: { format: :json }
+  resources :cart_items#, defaults: { format: :json }
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
