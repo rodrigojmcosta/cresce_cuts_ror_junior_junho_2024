@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   resources :orders#, defaults: { format: :json }
   resources :items#, defaults: { format: :json }
   resources :carts#, defaults: { format: :json }
-  resources :order_items#, defaults: { format: :json }
   resources :cart_items#, defaults: { format: :json }
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
