@@ -7,11 +7,10 @@ class Order < ApplicationRecord
 
   enum status: {pending: 0, in_progress: 1, confirmed: 2, in_route: 3, ready_for_pickup: 4 }
 
-  validates :total, :status, presence: true
-  validates :total, numericality: { greater_than: 0 }
+  validates :status, presence: true
   validate :must_have_items_in_cart
 
-  before_validation :calculate_total
+  before_save :calculate_total
 
   def accept_order
     return errors.add(:status, "Um pedido só pode ser aceito caso esteja pendente!") unless pending?
@@ -38,6 +37,8 @@ class Order < ApplicationRecord
   private
 
   def calculate_total
+    return unless cart.present?
+
     self.total = cart.cart_items.sum { |cart_item| cart_item.item.price * cart_item.quantity }
   end
 
@@ -46,6 +47,6 @@ class Order < ApplicationRecord
   end
 
   def must_have_items_in_cart
-    errors.add(:base, "É necessário pelo menos um item no carrinho para cadastrar o pedido.") if cart.cart_items.empty?
+    errors.add(:base, "É necessário pelo menos um item no carrinho para cadastrar o pedido.") unless cart&.cart_items&.any?
   end
 end
