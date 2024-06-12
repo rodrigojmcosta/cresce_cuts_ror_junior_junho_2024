@@ -15,22 +15,13 @@ cart1 = Cart.create!(customer: customer1)
 cart2 = Cart.create!(customer: customer2)
 
 # Adicionando itens aos carrinhos
-CartItem.create!(cart: cart1, item: item1, quantity: 2)
-CartItem.create!(cart: cart1, item: item2, quantity: 1)
-CartItem.create!(cart: cart2, item: item1, quantity: 4)
+cart_item1 = CartItem.create(cart_id: cart1.id, item_id: item1.id, quantity: 4)
+cart_item2 = CartItem.create(cart_id: cart2.id, item_id: item2.id, quantity: 5)
+cart_item3 = CartItem.create(cart_id: cart1.id, item_id: item2.id, quantity: 1)
 
-# Criando pedidos associados aos carrinhos
-order1 = Order.create!(total: cart.cart_items.sum { |ci| ci.item.price * ci.quantity }, customer: customer1, store: store1, cart: cart1)
-order2 = Order.create!(total: cart.cart_items.sum { |ci| ci.item.price * ci.quantity }, customer: customer2, store: store2, cart: cart2)
-
-# Calculando o total dos pedidos com base nos itens dos carrinhos
-order1.update!(total: order1.calculate_total)
-order2.update!(total: order2.calculate_total)
-
-# Adicionando itens aos pedidos e definindo o status de separados
-OrderItem.create!(order: order1, item: item1, quantity: 2, separated: false)
-OrderItem.create!(order: order1, item: item2, quantity: 1, separated: false)
-OrderItem.create!(order: order2, item: item1, quantity: 4, separated: false)
+# Criando pedidos
+order1 = Order.create(customer_id: customer1.id, store_id: store1.id, cart_id: cart1.id)
+order2 = Order.create(customer_id: customer2.id, store_id: store2.id, cart_id: cart2.id)
 
 # Atualizando lojas
 store1.update!(name: "Loja A Atualizada", description: "Descrição Atualizada da Loja A", address: "Endereço Atualizado da Loja A")
@@ -45,35 +36,29 @@ item1.update!(name: "Item 1 Atualizado", description: "Descrição Atualizada do
 item2.update!(name: "Item 2 Atualizado", description: "Descrição Atualizada do Item 2", price: 22.0, stock_quantity: 210)
 
 # Atualizando pedidos e status dos itens
-order1.accept_order
+cart_items = order1.cart.cart_items
+cart_items.each do |ci|
+  ci.mark_as_separated
+end
 order1.complete_separation
 order1.complete_payment_and_dispatch
 
 order2.accept_order
+cart_items = order2.cart.cart_items
+cart_items.each do |ci|
+  ci.mark_as_separated
+end
 order2.complete_separation
 order2.complete_payment_and_ready_for_pickup
 
-# Atualizando carrinhos
-cart1.update!(customer: customer2)
-cart2.update!(customer: customer1)
-
-# Atualizando itens do carrinho
-cart_item1 = CartItem.find_by(cart: cart1, item: item1)
-cart_item2 = CartItem.find_by(cart: cart1, item: item2)
-cart_item3 = CartItem.find_by(cart: cart2, item: item1)
-
-cart_item1.update!(quantity: 3)
-cart_item2.update!(quantity: 2)
-cart_item3.update!(quantity: 5)
+# Deletando pedidos primeiro
+order2.destroy!
 
 # Deletar itens do carrinho
 cart_item2.destroy!
 
 # Deletar carrinhos
 cart2.destroy!
-
-# Deletar pedidos
-order2.destroy!
 
 # Deletar itens
 item2.destroy!
